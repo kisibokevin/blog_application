@@ -28,7 +28,7 @@ const CreatePost = () => {
     const [ category, setCategory ] = useState("")
     const [ desc, setDesc ] = useState("");
     const [ media, setMedia ] = useState("");
-    const [ value, setValue ] = useState("");
+    const [ content, setContent ] = useState("");
 
 
     
@@ -67,38 +67,53 @@ const CreatePost = () => {
             file && upload();
     }, [file]);
 
+	/* const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+      setFile(file);
+      // Upload logic
+      } catch (error) {
+      console.error(error);
+      // Display error message to the user about file upload
+      }
+  }; */
+
     const handleTitle = (e) => {
         const newTitle = e.target.value;
         setTitle(newTitle);
         const autoSlug = slugify(newTitle);
         setSlug(autoSlug);
     };
-
-    const handleChange = (content) => {
-        setValue(content);
-    }
-
-    
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const res = await fetch('/api/posts', {
+        try {
+          const res = await fetch('/api/posts', {
             method: 'POST',
             body: JSON.stringify({
-                title,
-                desc: desc,
-                img: media,
-                slug: slugify(title),
-                catSlug: slugify(category),
-                content: value,
-                status : 'pending',
+              title,
+              desc,
+              img: media,
+              slug: slugify(title),
+              catSlug: slugify(category),
+              content,
+              status: 'pending',
             }),
-        });
-        console.log(res);
-        if (res.ok) {
-            router.push('/');
-        }
-    };
+          });
 
+          if (res.ok) {
+            router.push('/');
+          } else {
+            const errorData = await res.json();
+            console.error(errorData.message);
+            // Display error message to the user
+          }
+        } catch (error) {
+          console.error(error);
+          // Display generic error message to the user
+        }
+};
 
     if (status === 'loading') {
         return <div>Loading....</div>;
@@ -178,7 +193,7 @@ const CreatePost = () => {
               />
             </div>
             <div>
-              <ReactQuillEditor value={value} onChange={handleChange} />
+              <ReactQuillEditor value={content} onChange={setContent} />
             </div>
             <button type="submit" className={styles.button}>
               <RiAddLine className={styles.add} />

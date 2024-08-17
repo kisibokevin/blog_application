@@ -6,7 +6,8 @@ import Menu from '@/components/menu/Menu'
 import Image from 'next/image'
 import Comments from '@/components/comments/Comments'
 import parse from 'html-react-parser'
-import "highlight.js/styles/atom-one-dark.css";
+import SyntaxHighlighter from '@/components/syntaxHighlighter/SyntaxHighlighter'
+import DOMPurify from "isomorphic-dompurify";
 
 
 const getData = async (slug) => {
@@ -28,6 +29,8 @@ const SingleBlogPage = async ({params}) => {
 
     const post = await getData(slug);
     // console.log(post)
+
+    const sanitizedContent = DOMPurify.sanitize(post?.content);
 
     return (
         <div className={styles.container}>
@@ -65,7 +68,7 @@ const SingleBlogPage = async ({params}) => {
                     
                     
                         <div className={styles.postContent}>
-                            {parse(post?.content)}
+                            <SyntaxHighlighter content={parse(sanitizedContent)} />
                         </div>
                     
                     <div className={styles.comments}>

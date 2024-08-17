@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import hljs from 'highlight.js';
 import "highlight.js/styles/atom-one-dark.css";
@@ -51,7 +52,7 @@ const ReactQuillEditor = ({ value, onChange }) => {
             modules={modules} 
             formats={formats} 
             value={value}
-            onchange={onChange}
+            onChange={onChange}
         />
     );
 };
