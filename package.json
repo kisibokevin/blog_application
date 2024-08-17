@@ -1,0 +1,33 @@
+{
+  "name": "blog-application",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.4.2",
+    "@prisma/client": "^5.18.0",
+    "@remixicon/react": "^4.2.0",
+    "firebase": "^10.12.5",
+    "highlight.js": "^11.10.0",
+    "html-react-parser": "^5.1.12",
+    "next": "14.2.5",
+    "next-auth": "5.0.0-beta.19",
+    "prismjs": "^1.29.0",
+    "punycode": "^2.3.1",
+    "quill": "^2.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-quill": "^2.0.0",
+    "swr": "^2.2.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.5",
+    "prisma": "^5.18.0"
+  }
+}

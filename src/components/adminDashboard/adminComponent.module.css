@@ -1,0 +1,132 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+}
+
+.title{
+    color: var(--softTextColor);
+    font-weight: 400;
+}
+
+.tableContainer {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+    border-radius: 5px;
+    font-family: inherit;
+}
+
+.tableHead {
+    background-color: #f2f2f2;
+    border-radius: 5px;
+}
+
+.tableHeading,
+.tableData {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    
+}
+
+.tableHeading {
+    background-color: #7e57c2;
+    color: white;
+}
+
+.tableRow:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.tableRow:hover {
+    background-color: #f1f1f1;
+}
+
+.tableData .button {
+    color: #f1f1f1;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.tableData .button:hover {
+    background-color: #d89292;
+}
+
+.tableData .link {
+    color: #0070f3;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+
+.tableData .link:hover {
+    text-decoration: underline 2px #0070f3;
+}
+
+.actions{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.publishButton{
+    background-color: #28A745;
+    color: #f1f1f1;
+    font-size: 14px;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.publishButton:hover{
+    background-color: #1b5e20;
+}
+/* Post status styles */
+
+.pending {
+    color: #FFA500;
+    /* Orange */
+}
+
+.published {
+    color: #28A745;
+    /* Green */
+}
+
+.draft {
+    color: #007BFF;
+    /* Blue */
+}
+
+.unpublished {
+    color: #6C757D;
+    /* Gray */
+}
+
+.deleteButton{
+    background-color: #b11c1c;
+    color: #f1f1f1;
+    font-size: 14px;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.deleteButton:hover{
+    background-color: #d89292;
+}
