@@ -1,0 +1,49 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+}
+
+.navlink{
+    font-weight: 500;
+}
+
+.navlink span{
+    font-weight: 300;
+    cursor: default;
+}
+
+.title{
+    font-size: 34px;
+    font-weight: 500;
+}
+
+.subTitle{
+    color: gray;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.desc{
+    color: gray;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.container p span{
+    color: #052525;
+    font-weight: 500;
+}
+
+.skills{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 50px;
+    font-weight: 500;
+}
+
+.skill span{
+    font-weight: 300;
+}
