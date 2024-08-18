@@ -2,7 +2,7 @@ import React from 'react'
 import styles from './about.module.css'
 import Link from 'next/link';
 
-const About = () => {
+const AboutPage = () => {
     return (
         <div className={styles.container}>
             <div className={styles.aboutUs}>
@@ -59,4 +59,4 @@ const About = () => {
     );
 }
 
-export default About
+export default AboutPage

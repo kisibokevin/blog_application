@@ -1,9 +1,13 @@
 import React from 'react'
+import styles from './contactPage.module.css'
+import Contact from '@/components/contact/Contact';
 
-const Contact = () => {
+const ContactPage = () => {
     return (
-        <div>Contact</div>
-    )
+        <div className={styles.container}>
+            <Contact />
+        </div>
+    );
 }
 
-export default Contact
+export default ContactPage
