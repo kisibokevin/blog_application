@@ -6,6 +6,7 @@ import "highlight.js/styles/atom-one-dark.css";
 import styles from "./SyntaxHighlighter.module.css";
 
 const SyntaxHighlighter = ({ content }) => {
+    
     useEffect(() => {
         // Process each pre element
         document.querySelectorAll('pre').forEach((block) => {
