@@ -56,7 +56,7 @@ const menuItems = {
         {
             icon: <RiDashboardLine />,
             label: 'Overview',
-            href: '/dashboard/admin/overview',
+            href: '/dashboard/admin/adminoverview',
         },
         {
             icon: <RiEditLine />,

@@ -14,6 +14,10 @@ const AuthLinks = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: "/" }); // Redirect to homepage after sign-out
+  };
+
   const isAdmin = session?.user?.role === 'admin'; // Check if user is an admin
   
   return (
@@ -24,15 +28,15 @@ const AuthLinks = () => {
         </Link>
       ) : (
         <>
-          <Link href="/createpost" className={styles.link}>
-            Create
+          <Link href="/dashboard" className={styles.link}>
+            Dashboard
           </Link>
           {isAdmin && (
             <Link href="/admin" className={styles.link}>
               Admin
             </Link>
           )}
-          <span className={styles.link} onClick={signOut}>
+          <span className={styles.link} onClick={handleSignOut}>
             Logout
           </span>
         </>
@@ -49,13 +53,15 @@ const AuthLinks = () => {
             <Link href="/login">Login</Link>
           ) : (
             <>
-              <Link href="/createpost">Create</Link>
+              <Link href="/dashboard">Dashboard</Link>
               {isAdmin && (
                 <Link href="/admin" className={styles.link}>
                   Admin
                 </Link>
               )}
-              <span className={styles.link}>Logout</span>
+              <span className={styles.link} onClick={handleSignOut}>
+                Logout
+              </span>
             </>
           )}
         </div>

@@ -1,26 +1,18 @@
 'use client'
 import React from 'react'
 import styles from './dashboardSidebar.module.css'
-import menuItems from '@/data/menuItems'
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
 
-const DashboardSidebar = ({role}) => {
+const DashboardSidebar = ({ items }) => {
+    //console.log("DashboardSidebar items:", items);
 
-    const { data: session } = useSession();
-
-    const items = role === "creator" ? menuItems.admin : menuItems.creator;
-
-
-    // check if user role is admin and return admin items else creator items
-    //const role = session?.user?.role || "creator";
-
-    //const items = role === 'admin'? menuItems.admin : menuItems.creator;
+    if (!items || !Array.isArray(items)) {
+        console.error("DashboardSidebar received an invalid items prop:", items);
+        return null; // or return a fallback UI
+    }
 
     return (
         <div className={styles.container}>
-            
-            {/* Menu items */}
             <div className={styles.menuItems}>
                 {items.map((item, index) => (
                     <div key={index} className={styles.item}>

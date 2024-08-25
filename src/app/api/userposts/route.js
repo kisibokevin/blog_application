@@ -6,21 +6,25 @@ import { auth } from '@/auth';
 // fetch all posts that the user has from the server using user session
 
 export const GET = async (req) => {
+    
     const session = await auth();
 
     if (!session?.user?.id) {
-        return new NextResponse(null, { status: 401 });
+        return new NextResponse(JSON.stringify({ message: 'Unauthorized: No user ID' }), { status: 401 });
     }
-
+    
+    
     try {
         const userPosts = await prisma.post.findMany({
-            where: { userId: session.user.id },
-            include: { user: true },
+            where: { user: { email: session.user.email } },
+            //include: { user: true },
         });
 
         return new NextResponse(JSON.stringify(userPosts), { status: 200 });
+
     } catch (err) {
+        console.error("Error fetching user posts:", err);
         return new NextResponse(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
     }
-}
+};
 

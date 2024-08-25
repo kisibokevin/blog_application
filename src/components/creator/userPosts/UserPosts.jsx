@@ -4,6 +4,7 @@ import useSWR from "swr"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import styles from "./userPosts.module.css"
+import { RiEyeLine, RiDeleteBin2Line } from '@remixicon/react'
 
 const fetcher = async (url) => {
     const res = await fetch(url);
@@ -19,40 +20,45 @@ const fetcher = async (url) => {
 // the function below gets user posts and  displays them in a table
 
 const UserPosts = () => {
-    const { data: user, isLoading } = useSession();
-    const { data: posts, error , mutate} = useSWR(`/api/userposts?userId=${user?.id}`, fetcher);
+    const { data: session, status: sessionStatus } = useSession();
+    const { data: posts, error, mutate } = useSWR(
+        session?.user?.id ? `/api/userposts?userId=${session.user.id}` : null, 
+        fetcher
+    );
 
-
-    return(
+    if (sessionStatus === 'loading') return <div>Loading session...</div>;
+    if (!session?.user) return <div>Please sign in to view your posts.</div>;
+    
+    return (
         <div className={styles.container}>
-            {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
+            {!posts && <div>Loading posts...</div>}
             {posts && (
-                <table>
+                <table className={styles.postTable}>
                     <thead>
                         <tr>
                             <th>Title</th>
-                            <th>Content</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {posts.map((post) => (
-                            <tr key={post._id}>
+                            <tr key={post.id}>
                                 <td>{post.title}</td>
-                                <td>{post.content}</td>
-                                <td>
-                                    <Link href={`/edit-post/${post._id}`}>Edit</Link>
-                                    <button onClick={() => handleDelete(post._id)}>Delete</button>
+                                <td>{post.status}</td>
+                                <td className={styles.actions}>
+                                    <Link href={`/edit-post/${post.id}`} className={styles.editButton}><RiEyeLine /></Link>
+                                    <button onClick={() => handleDelete(post.id)} className={styles.deleteButton} ><RiDeleteBin2Line /></button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             )}
-            <Link href="/create-post">Create New Post</Link>
+            <Link href="/dashboard/creator/createpost" className={styles.createPostButton}>Create New Post</Link>
         </div>
-    )
-}
+    );
+};
 
 export default UserPosts;
