@@ -1,13 +1,13 @@
 import React from 'react';
+import AdminOverview from '@/components/admin/adminOverview/AdminOverview';
 
-const AdminOverview = () => {
+const AdminView = () => {
 
     return (
         <div>
-            <h1>Admin Overview</h1>
-            <p>This is the Admin Overview page</p>
+            <AdminOverview />
         </div>
     )
 }
 
-export default AdminOverview
+export default AdminView;

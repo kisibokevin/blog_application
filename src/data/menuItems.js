@@ -61,22 +61,22 @@ const menuItems = {
         {
             icon: <RiEditLine />,
             label: 'Manage Posts',
-            href: '/dashboard/admin/manage-posts',
+            href: '/dashboard/admin/manageposts',
         },
         {
             icon: <RiFlag2Line />,
-            label: 'Content Moderation',
-            href: '/dashboard/admin/content-moderation',
+            label: 'Moderation',
+            href: '/dashboard/admin/moderation',
         },
         {
             icon: <RiDeleteBinLine />,
             label: 'Deleted Posts',
-            href: '/dashboard/admin/deleted-posts',
+            href: '/dashboard/admin/deletedposts',
         },
         {
             icon: <RiUserLine />,
             label: 'Manage Users',
-            href: '/dashboard/admin/manage-users',
+            href: '/dashboard/admin/manageusers',
         },
         {
             icon: <RiBarChartLine />,
@@ -84,13 +84,8 @@ const menuItems = {
             href: '/dashboard/admin/analytics',
         },
         {
-            icon: <RiSettingsLine />,
-            label: 'Settings',
-            href: '/dashboard/admin/settings',
-        },
-        {
             icon: <RiSettings3Line />,
-            label: 'Site Settings',
+            label: 'Settings',
             href: '/dashboard/admin/settings',
         },
     ],
