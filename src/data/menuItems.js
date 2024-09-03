@@ -27,7 +27,7 @@ const menuItems = {
             href: '/dashboard/creator/createpost',
         },
         {
-            icon: <RiFileListLine />,
+            icon: <RiBookletLine />,
             label: 'My Posts',
             href: '/dashboard/creator/myposts',
         },

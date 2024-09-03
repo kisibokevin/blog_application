@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState} from 'react'
+import React, { useState, useMemo } from 'react'
 import styles from './postsmanagement.module.css'
 import {
     RiSearchLine,
@@ -20,6 +20,7 @@ import ConfirmModal from '@/components/confirmModal/ConfirmModal'
 //import Tooltip from '@/components/tooltip/Tooltip';
 import { Tooltip } from 'react-tooltip';
 import Notification from '@/components/notification/Notification';
+import { revalidatePath } from 'next/cache';
 
 
 
@@ -46,7 +47,13 @@ const PostManagement = () => {
 
     const [ isModalOpen, setIsModalOpen ] = useState(false);
     const [postToDelete, setPostToDelete] = useState(null);
-    const [ notification, setNotification] = useState({ message: '', type: '',})
+    const [ notification, setNotification] = useState({ message: '', type: '',});
+    const [searchTerm, setSearchTerm] = useState("");
+    const [ sortOrder, setSortOrder ] = useState('asc');
+    const [ currentPage, setCurrentPage ] = useState(1);
+    const [ postsPerPage, setPostsPerPage ] = useState(10);
+    const [ filterStatus, setFilterStatus ] = useState('');
+    const POSTS_PER_PAGE = 10;
 
     // TODO: Fetch data from API
     const {
@@ -58,8 +65,12 @@ const PostManagement = () => {
 
     //console.log(posts)
 
-    // TODO: Update state when data changes
-    // TODO: Render table with posts
+    const handleSearchChange = (e) => setSearchTerm(e.target.value.toLowerCase());
+    const handleSortChange = (e) => setSortOrder(e.target.value);
+    const handleFilterChange = (e) => setFilterStatus(e.target.value);
+
+    // TODO: Update state when data changes - done
+    // TODO: Render table with posts - done
     // TODO: Render pagination controls
     // TODO: Implement search bar
     // TODO: Implement sorting
@@ -168,6 +179,51 @@ const PostManagement = () => {
         setPostToDelete(null);
     };
 
+    const handlePageChange = (direction) => {
+        if (direction === 'prev') {
+            setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+        } else {
+            setCurrentPage((prevPage) => prevPage + 1);
+        }
+    };
+
+    const filteredPosts = useMemo(() => {
+        if (!posts) return []; // Ensure posts is defined before processing
+        let filtered = posts;
+
+        // Search functionality
+        if (searchTerm) {
+            filtered = filtered.filter(
+                post => post.title.toLowerCase().includes(searchTerm) ||
+                    post.user.name.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // Filter functionality
+        if (filterStatus) {
+            filtered = filtered.filter(post => post.status === filterStatus);
+        }
+
+        // Sort functionality
+        if (sortOrder) {
+            filtered = filtered.sort((a, b) => {
+                if (sortOrder === 'asc') {
+                    return new Date(a.createdAt) - new Date(b.createdAt);
+                } else {
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                }
+            });
+        }
+
+        return filtered;
+    }, [posts, searchTerm, sortOrder, filterStatus]);
+
+    const paginatedPosts = useMemo(() => {
+        const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+        return filteredPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
+    }, [filteredPosts, currentPage]);
+
+
     // Handle session errors
     if (error) {
         return <div>Error : {error.message}</div>
@@ -204,23 +260,23 @@ const PostManagement = () => {
 
                 <div className={styles.titleDiv}>
                     <h3 className={styles.listTitle}>Posts list</h3>
-                    <button className={styles.addButton}>Add New Post</button>
+                    <Link href='/dashboard/admin/createpost' className={styles.addButton}>Add New Post</Link>
                 </div>
                 <div className={styles.searchContainer}>
                     <div className={styles.searchBar}>
-                        <input className={styles.input} type="text" placeholder="Search by title or author" />
+                        <input className={styles.input} type="text" placeholder="Search by title or author" value={searchTerm} onChange={handleSearchChange}/>
                         <RiSearchLine size={18} color='gray'  className={styles.searchIcon}/>
                     </div>
                     <div className={styles.sortingBar}>
                         <div className={styles.sort}>
-                            <select>
+                            <select value={sortOrder} onChange={handleSortChange}>
                                 <option value="">Sort</option>
                                 <option value="asc">Ascending</option>
                                 <option value="desc">Descending</option>
                             </select>
                         </div>
                         <div className={styles.filter}>
-                            <select>
+                            <select value={filterStatus} onChange={handleFilterChange}>
                                 <option value="">Filter</option>
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
@@ -239,7 +295,8 @@ const PostManagement = () => {
                         </tr>
                     </thead>
                     <tbody className={styles.tableBody}>
-                        {posts && posts.map((post) =>(
+                        {paginatedPosts.length > 0 ? (
+                        paginatedPosts.map((post) => (
                             <tr key={post.id}>
                                 <td>{post.title}</td>
                                 <td>{post.user.name}</td>
@@ -269,18 +326,23 @@ const PostManagement = () => {
                                         />
                                 </td>
                             </tr>
-                        ))}
+                        ))
+                    ) : (
+                        <tr>
+                                <td colSpan="5">No posts found.</td>
+                            </tr>
+                        )}
                         
                     </tbody>
                 </table>
                 
                 {/* Pagination Controls */}
                 <div className={styles.pagination}>
-                    <RiArrowLeftSLine size={32} color='black' className={`${styles.prevIcon} ${styles.pButton}`} />
+                    <RiArrowLeftSLine size={32} color='black' className={`${styles.prevIcon} ${styles.pButton}`} onClick={() => handlePageChange('prev')} disabled={currentPage === 1}/>
                     <div className={styles.paginationCounter}>
                         <span>1-20 of {posts?.length || 0}</span>
                     </div>
-                    <RiArrowRightSLine size={32} color='black' className={`${styles.nextIcon} ${styles.pButton}`} />
+                    <RiArrowRightSLine size={32} color='black' className={`${styles.nextIcon} ${styles.pButton}`} onClick={() => handlePageChange('next')} disabled={currentPage * POSTS_PER_PAGE >= filteredPosts.length}/>
                 </div>
             </div>
             <ConfirmModal

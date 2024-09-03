@@ -19,6 +19,7 @@ const AuthLinks = () => {
   };
 
   const isAdmin = session?.user?.role === 'admin'; // Check if user is an admin
+  const isCreator = session?.user?.role === 'creator'; // Check if user is a creator
   
   return (
     <>
@@ -28,12 +29,9 @@ const AuthLinks = () => {
         </Link>
       ) : (
         <>
-          <Link href="/dashboard" className={styles.link}>
-            Dashboard
-          </Link>
-          {isAdmin && (
-            <Link href="/admin" className={styles.link}>
-              Admin
+          {(isAdmin || isCreator) && (
+            <Link href="/dashboard" className={styles.link}>
+              Dashboard
             </Link>
           )}
           <span className={styles.link} onClick={handleSignOut}>
@@ -54,9 +52,9 @@ const AuthLinks = () => {
           ) : (
             <>
               <Link href="/dashboard">Dashboard</Link>
-              {isAdmin && (
-                <Link href="/admin" className={styles.link}>
-                  Admin
+              {(isAdmin || isCreator) && (
+                <Link href="/dashboard" className={styles.link}>
+                  Dashboard
                 </Link>
               )}
               <span className={styles.link} onClick={handleSignOut}>
