@@ -13,6 +13,7 @@ export const GET = async (req) => {
       take: POSTS_PER_PAGE,
       skip: POSTS_PER_PAGE * (page - 1),
       where: {
+        status: "published",
         ...(cat && { catSlug: cat }),
       },
     };

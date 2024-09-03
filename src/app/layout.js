@@ -6,7 +6,6 @@ import { Footer } from "@/components/footer/Footer";
 import { ThemeContextProvider } from "@/context/ThemeContext";
 import ThemeProvider from '@/providers/ThemeProvider';
 import AuthProvider from "@/providers/AuthProvider";
-// import NoScrollOnSpace from "@/components/noscrollonspace/NoScrollOnSpace";
 
 
 const poppins = Poppins({

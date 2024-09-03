@@ -1,5 +1,6 @@
 .container {
     display: flex;
+    border-top: 1px solid gray;
 }
 
 .main{

@@ -37,6 +37,7 @@ a{
   min-height: 100vh;
   background-color: var(--bg);
   color: var(--textColor);
+  padding: 0;
 }
 
 .wrapper{
@@ -48,6 +49,13 @@ a{
 @media screen and (max-width: 1536px){
   .wrapper{
     max-width: 1366px;
+  }
+}
+
+@media screen and (max-width: 1366px) {
+  .wrapper {
+    max-width: 1280px;
+    padding: 0 20px;
   }
 }
 

@@ -2,15 +2,24 @@
 
 import React, { useState} from 'react'
 import styles from './postsmanagement.module.css'
-import { RiSearchLine } from '@remixicon/react'
-import { RiArrowDownSLine } from '@remixicon/react'
-import { RiArrowLeftSLine } from '@remixicon/react'
-import { RiArrowRightSLine } from '@remixicon/react'
+import {
+    RiSearchLine,
+    RiArrowDownSLine,
+    RiArrowLeftSLine,
+    RiArrowRightSLine,
+    RiEyeLine,
+    RiUploadLine,
+    RiDownloadLine,
+    RiDeleteBinLine
+} from "@remixicon/react";
 import useSWR from 'swr'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ConfirmModal from '@/components/confirmModal/ConfirmModal'
+//import Tooltip from '@/components/tooltip/Tooltip';
+import { Tooltip } from 'react-tooltip';
+import Notification from '@/components/notification/Notification';
 
 
 
@@ -26,19 +35,18 @@ const fetcher = async (url) => {
 }
 
 const PostManagement = () => {
-
-    const { status } = useSession();
-    const router = useRouter();
-
-    const [ isModalOpen, setModalOpen ] = useState(false);
-    const [postToDelete, setPostToDelete] = useState(null);
-
-    
     /*
     * Fetch data from API, update state when data changes,
     * Render table with posts, pagination, search bar, sorting, filtering,
     * Add new post, view post, delete post, and pagination controls.
     */
+
+    const { status } = useSession();
+    const router = useRouter();
+
+    const [ isModalOpen, setIsModalOpen ] = useState(false);
+    const [postToDelete, setPostToDelete] = useState(null);
+    const [ notification, setNotification] = useState({ message: '', type: '',})
 
     // TODO: Fetch data from API
     const {
@@ -48,7 +56,7 @@ const PostManagement = () => {
         isLoading,
     } = useSWR("http://localhost:3000/api/admin", fetcher);
 
-    //console.log(posts);
+    //console.log(posts)
 
     // TODO: Update state when data changes
     // TODO: Render table with posts
@@ -56,13 +64,14 @@ const PostManagement = () => {
     // TODO: Implement search bar
     // TODO: Implement sorting
     // TODO: Implement filtering
-    
+
 
     // TODO: Implement publish post functionality
     const handlePublish = async (slug) => {
         // update post status in API and update state
         try {
-            await fetch(`http://localhost:3000/api/admin/${slug}`, {
+
+            const res = await fetch(`http://localhost:3000/api/admin/${slug}`, {
                 method: 'PUT',
                 body: JSON.stringify({
                     status: 'published',
@@ -72,10 +81,13 @@ const PostManagement = () => {
             if (!res.ok) {
                 throw new Error('Failed to Publish Post')
             }
+
             mutate();
+            setNotification({ message: 'Post Published Successfully', type: 'success' });
             
         } catch (err) {
             console.error('Error Publishing Post', err.message);
+            setNotification({ message: 'Error Publishing Post', type: 'error' });
         }
 
     };
@@ -84,19 +96,24 @@ const PostManagement = () => {
     const handleUnpublish = async (slug) => {
         // update post status in API and update state
         try {
-            await fetch(`http://localhost:3000/api/admin/${slug}`, {
+
+            const res = await fetch(`http://localhost:3000/api/admin/${slug}`, {
                 method: 'PUT',
                 body: JSON.stringify({
                     status: 'pending',
                 }),
             });
+
             if (!res.ok) {
                 throw new Error('Failed to Unpublish Post')
             }
+
             mutate();
+            setNotification({ message: 'Post Unpublished Successfully', type: 'success' });
             
         } catch (err) {
             console.error('Error UnPublishing Post', err.message);
+            setNotification({ message: 'Error Unpublishing Post', type: 'error' });
         }
     };
 
@@ -113,17 +130,45 @@ const PostManagement = () => {
 
     };
 
-    // TODO: Implement delete post functionality
-    const handleDelete = async (id) => {
-        // delete post from API and update state
-        if( confirm(
-            'Are you sure you want to delete this post?'
-        )){await fetch(`http://localhost:3000/api/admin/${id}`, {
-            method: 'DELETE',
-        });
-        mutate();}
+    // TODO: Implement delete post functionality through a modal
+    const handleDelete = (slug) => {
+        setPostToDelete(slug);
+        setIsModalOpen(true);
     }
 
+    const handleConfirmDelete = async () => {
+
+        if(!postToDelete) return;
+
+        try {
+
+            const res = await fetch(`http://localhost:3000/api/admin/${postToDelete}`, {
+                method: 'DELETE',
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to delete Post')
+            }
+
+            mutate();
+            setNotification({ message: 'Post Deleted Successfully', type: 'success' });
+
+        } catch (error) {
+
+            console.error('Error deleting post:', error);
+            setNotification({ message: 'Error Deleting Post', type: 'error' });
+        } finally {
+            setIsModalOpen(false);
+            setPostToDelete(null);
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setIsModalOpen(false);
+        setPostToDelete(null);
+    };
+
+    // Handle session errors
     if (error) {
         return <div>Error : {error.message}</div>
     }
@@ -139,6 +184,13 @@ const PostManagement = () => {
 
     return (
         <div className={styles.container}>
+            {notification.message && (
+                <Notification
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={() => setNotification({ message: '', type: '' })}
+                />
+            )}
             <div className={styles.tableContainer}>
                 <p>Posts Management</p>
                 {/* Table */}
@@ -194,30 +246,49 @@ const PostManagement = () => {
                                 <td className={`${styles[post.status]}`}>{post.status}</td>
                                 <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                                 <td className={styles.action}>
-                                    <button className={styles.viewButton} onClick={() => viewPost(post.slug)}>View</button>
+                                    <RiEyeLine id="view-post" size={24} className={styles.viewButton} onClick={() => viewPost(post.slug)}/>
                                     {post.status === 'pending' ? (
-                                        <button className={styles.publishButton} onClick={() => handlePublish(post.slug)}>Publish</button>
+                                        <RiUploadLine id="publish-post" size={24} className={styles.publishButton} onClick={() => handlePublish(post.slug)}/>
+                                        
                                     ) : (
-                                        <button className={styles.unpublishButton} onClick={() => handleUnpublish(post.slug)}>Unpublish</button>
+                                        <RiDownloadLine id="unpublish-post" size={24} className={styles.unpublishButton} onClick={() => handleUnpublish(post.slug)}/>
                                     )}
-                                    <button className={styles.deleteButton} onClick={() => handleDelete(post.id)}>Delete</button>
+                                    <RiDeleteBinLine id="delete-post" className={styles.deleteButton} onClick={() => handleDelete(post.slug)}/>
+                                    {/*tooltips for view, publish & unpublish buttons */}
+                                    <Tooltip anchorSelect='#view-post' content='View Post' style={{ backgroundColor: "#4caf50", color: "#ffffff", }}/>
+                                    <Tooltip 
+                                        anchorSelect='#publish-post'  
+                                        content='Publish Post'
+                                        style={{ backgroundColor: "#2196f3", color: "#ffffff", }}
+                                    />
+                                    <Tooltip anchorSelect='#unpublish-post' content='UnPublish PostPost' style={{ backgroundColor: "#ffc107", color: "#000000", }}/>
+                                    <Tooltip 
+                                        anchorSelect='#delete-post' 
+                                        content='Delete Post'
+                                        style={{ backgroundColor: "#F44336", color: "#ffffff", }}
+                                        />
                                 </td>
                             </tr>
                         ))}
                         
                     </tbody>
-                    <tfoot className={styles.tableFooter}>
-                        {/* Pagination Container*/}
-                        <div className={styles.pagination}>
-                            <RiArrowLeftSLine size={32} color='black' className={`${styles.prevIcon} ${styles.pButton}`}/>
-                            <div className={styles.paginationCounter}>
-                                <span>1-20 of 100</span>
-                            </div>
-                            <RiArrowRightSLine size={32} color='black' className={`${styles.nextIcon} ${styles.pButton}`}/>
-                        </div>
-                    </tfoot>
                 </table>
+                
+                {/* Pagination Controls */}
+                <div className={styles.pagination}>
+                    <RiArrowLeftSLine size={32} color='black' className={`${styles.prevIcon} ${styles.pButton}`} />
+                    <div className={styles.paginationCounter}>
+                        <span>1-20 of {posts?.length || 0}</span>
+                    </div>
+                    <RiArrowRightSLine size={32} color='black' className={`${styles.nextIcon} ${styles.pButton}`} />
+                </div>
             </div>
+            <ConfirmModal
+                isOpen={isModalOpen}
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+                message="Are you sure you want to delete this post?"
+            />
         </div>
     )
 }

@@ -145,6 +145,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+    border: none;
 }
 
 .table .action .deleteButton{
@@ -229,4 +230,9 @@
     top: 0;
     left: 0;
     z-index: 9999;
+}
+
+.unpublishTooltip{
+    background-color: #FFC107;
+    color: rgb(34, 34, 34);
 }

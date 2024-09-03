@@ -1,4 +1,5 @@
 import {
+    RiBookletLine,
     RiDashboardLine,
     RiEditLine,
     RiFileListLine,
@@ -60,6 +61,11 @@ const menuItems = {
         },
         {
             icon: <RiEditLine />,
+            label: 'Create Post',
+            href: '/dashboard/admin/createpost',
+        },
+        {
+            icon: <RiBookletLine />,
             label: 'Manage Posts',
             href: '/dashboard/admin/manageposts',
         },
