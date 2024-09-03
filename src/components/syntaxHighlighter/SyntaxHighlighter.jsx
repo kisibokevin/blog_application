@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import hljs from "highlight.js";
-import "highlight.js/styles/atom-one-dark.css";
+import "highlight.js/styles/github-dark.css";
 import styles from "./SyntaxHighlighter.module.css";
 
 const SyntaxHighlighter = ({ content }) => {
