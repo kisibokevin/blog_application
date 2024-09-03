@@ -1,0 +1,27 @@
+
+/* SearchBar.module.css */
+
+.searchBar {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 300px;
+    position: relative;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.input {
+    width: 100%;
+    padding: 5px;
+    border: none;
+    outline: none;
+}
+
+.searchIcon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 10px;
+    cursor: pointer;
+}

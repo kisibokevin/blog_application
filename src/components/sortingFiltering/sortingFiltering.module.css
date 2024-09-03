@@ -1,0 +1,42 @@
+/* SortingBar.module.css */
+.sortingBar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sortingBar .sort,
+.sortingBar .filter {
+    cursor: pointer;
+    font-weight: 500;
+    margin-right: 10px;
+    transition: color 0.3s ease;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.sortingBar .sort.active,
+.sortingBar .filter.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+.sortingBar .sort:hover,
+.sortingBar .filter:hover {
+    color: #007bff;
+}
+
+.sort select,
+.filter select {
+    padding: 5px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 14px;
+    background-color: #fff;
+    border-radius: 5px;
+    color: #333;
+    appearance: none;
+}

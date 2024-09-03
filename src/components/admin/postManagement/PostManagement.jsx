@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react'
 import styles from './postsmanagement.module.css'
 import {
     RiSearchLine,
+    RiEditLine,
     RiArrowDownSLine,
     RiArrowLeftSLine,
     RiArrowRightSLine,
@@ -68,14 +69,6 @@ const PostManagement = () => {
     const handleSearchChange = (e) => setSearchTerm(e.target.value.toLowerCase());
     const handleSortChange = (e) => setSortOrder(e.target.value);
     const handleFilterChange = (e) => setFilterStatus(e.target.value);
-
-    // TODO: Update state when data changes - done
-    // TODO: Render table with posts - done
-    // TODO: Render pagination controls
-    // TODO: Implement search bar
-    // TODO: Implement sorting
-    // TODO: Implement filtering
-
 
     // TODO: Implement publish post functionality
     const handlePublish = async (slug) => {
@@ -248,19 +241,9 @@ const PostManagement = () => {
                 />
             )}
             <div className={styles.tableContainer}>
-                <p>Posts Management</p>
-                {/* Table */}
-                {/* Search Bar */}
-                {/* Sorting */}
-                {/* Add New Post */}
-                {/* Pagination */}
-                {/* Edit Post */}
-                {/* Delete Post */}
-                {/* Filter */}
-
                 <div className={styles.titleDiv}>
                     <h3 className={styles.listTitle}>Posts list</h3>
-                    <Link href='/dashboard/admin/createpost' className={styles.addButton}>Add New Post</Link>
+                    <Link href='/dashboard/admin/createpost' className={styles.addButton}><RiEditLine size={18}/><span>Create Post</span></Link>
                 </div>
                 <div className={styles.searchContainer}>
                     <div className={styles.searchBar}>
@@ -278,8 +261,8 @@ const PostManagement = () => {
                         <div className={styles.filter}>
                             <select value={filterStatus} onChange={handleFilterChange}>
                                 <option value="">Filter</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
+                                <option value="published">Published</option>
+                                <option value="pending">Pending</option>
                             </select>
                         </div>
                     </div>
@@ -296,39 +279,39 @@ const PostManagement = () => {
                     </thead>
                     <tbody className={styles.tableBody}>
                         {paginatedPosts.length > 0 ? (
-                        paginatedPosts.map((post) => (
-                            <tr key={post.id}>
-                                <td>{post.title}</td>
-                                <td>{post.user.name}</td>
-                                <td className={`${styles[post.status]}`}>{post.status}</td>
-                                <td>{new Date(post.createdAt).toLocaleDateString()}</td>
-                                <td className={styles.action}>
-                                    <RiEyeLine id="view-post" size={24} className={styles.viewButton} onClick={() => viewPost(post.slug)}/>
-                                    {post.status === 'pending' ? (
-                                        <RiUploadLine id="publish-post" size={24} className={styles.publishButton} onClick={() => handlePublish(post.slug)}/>
-                                        
-                                    ) : (
-                                        <RiDownloadLine id="unpublish-post" size={24} className={styles.unpublishButton} onClick={() => handleUnpublish(post.slug)}/>
-                                    )}
-                                    <RiDeleteBinLine id="delete-post" className={styles.deleteButton} onClick={() => handleDelete(post.slug)}/>
-                                    {/*tooltips for view, publish & unpublish buttons */}
-                                    <Tooltip anchorSelect='#view-post' content='View Post' style={{ backgroundColor: "#4caf50", color: "#ffffff", }}/>
-                                    <Tooltip 
-                                        anchorSelect='#publish-post'  
-                                        content='Publish Post'
-                                        style={{ backgroundColor: "#2196f3", color: "#ffffff", }}
-                                    />
-                                    <Tooltip anchorSelect='#unpublish-post' content='UnPublish PostPost' style={{ backgroundColor: "#ffc107", color: "#000000", }}/>
-                                    <Tooltip 
-                                        anchorSelect='#delete-post' 
-                                        content='Delete Post'
-                                        style={{ backgroundColor: "#F44336", color: "#ffffff", }}
+                            paginatedPosts.map((post) => (
+                                <tr key={post.id}>
+                                    <td>{post.title}</td>
+                                    <td>{post.user.name}</td>
+                                    <td className={`${styles[post.status]}`}>{post.status}</td>
+                                    <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    <td className={styles.action}>
+                                        <RiEyeLine id="view-post" size={24} className={styles.viewButton} onClick={() => viewPost(post.slug)}/>
+                                        {post.status === 'pending' ? (
+                                            <RiUploadLine id="publish-post" size={24} className={styles.publishButton} onClick={() => handlePublish(post.slug)}/>
+                                            
+                                        ) : (
+                                            <RiDownloadLine id="unpublish-post" size={24} className={styles.unpublishButton} onClick={() => handleUnpublish(post.slug)}/>
+                                        )}
+                                        <RiDeleteBinLine id="delete-post" className={styles.deleteButton} onClick={() => handleDelete(post.slug)}/>
+                                        {/*tooltips for view, publish & unpublish buttons */}
+                                        <Tooltip anchorSelect='#view-post' content='View Post' style={{ backgroundColor: "#4caf50", color: "#ffffff", }}/>
+                                        <Tooltip 
+                                            anchorSelect='#publish-post'  
+                                            content='Publish Post'
+                                            style={{ backgroundColor: "#2196f3", color: "#ffffff", }}
                                         />
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
+                                        <Tooltip anchorSelect='#unpublish-post' content='UnPublish PostPost' style={{ backgroundColor: "#ffc107", color: "#000000", }}/>
+                                        <Tooltip 
+                                            anchorSelect='#delete-post' 
+                                            content='Delete Post'
+                                            style={{ backgroundColor: "#F44336", color: "#ffffff", }}
+                                            />
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
                                 <td colSpan="5">No posts found.</td>
                             </tr>
                         )}
@@ -340,7 +323,7 @@ const PostManagement = () => {
                 <div className={styles.pagination}>
                     <RiArrowLeftSLine size={32} color='black' className={`${styles.prevIcon} ${styles.pButton}`} onClick={() => handlePageChange('prev')} disabled={currentPage === 1}/>
                     <div className={styles.paginationCounter}>
-                        <span>1-20 of {posts?.length || 0}</span>
+                        <span>Page {currentPage}</span>
                     </div>
                     <RiArrowRightSLine size={32} color='black' className={`${styles.nextIcon} ${styles.pButton}`} onClick={() => handlePageChange('next')} disabled={currentPage * POSTS_PER_PAGE >= filteredPosts.length}/>
                 </div>
