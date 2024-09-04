@@ -65,6 +65,11 @@ const menuItems = {
             href: '/dashboard/admin/createpost',
         },
         {
+            icon: <RiUserLine />,
+            label: 'Manage Users',
+            href: '/dashboard/admin/manageusers',
+        },
+        {
             icon: <RiBookletLine />,
             label: 'Manage Posts',
             href: '/dashboard/admin/manageposts',
@@ -78,11 +83,6 @@ const menuItems = {
             icon: <RiDeleteBinLine />,
             label: 'Deleted Posts',
             href: '/dashboard/admin/deletedposts',
-        },
-        {
-            icon: <RiUserLine />,
-            label: 'Manage Users',
-            href: '/dashboard/admin/manageusers',
         },
         {
             icon: <RiBarChartLine />,

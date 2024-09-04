@@ -3,11 +3,7 @@
 import React, { useState, useMemo } from 'react'
 import styles from './postsmanagement.module.css'
 import {
-    RiSearchLine,
     RiEditLine,
-    RiArrowDownSLine,
-    RiArrowLeftSLine,
-    RiArrowRightSLine,
     RiEyeLine,
     RiUploadLine,
     RiDownloadLine,
@@ -20,7 +16,8 @@ import Link from 'next/link'
 import ConfirmModal from '@/components/confirmModal/ConfirmModal'
 import { Tooltip } from 'react-tooltip';
 import Notification from '@/components/notification/Notification';
-import { fetcher, filterPosts, sortPosts, paginatePosts } from '@/utils/postUtils';
+//import { fetcher, filterPosts, sortPosts, paginatePosts } from '@/utils/postUtils';
+import { fetcher, filterItems, sortItems, paginateItems } from '@/utils/dataUtils';
 import TablePagination from '@/components/tablePagination/TablePagination';
 import SearchBar from '@/components/searchBar/SearchBar';
 import SortingAndFiltering from '@/components/sortingFiltering/SortingAndFiltering';
@@ -41,9 +38,8 @@ const PostManagement = () => {
     const [ searchTerm, setSearchTerm ] = useState("");
     const [ sortOrder, setSortOrder ] = useState('asc');
     const [ currentPage, setCurrentPage ] = useState(1);
-    const [ postsPerPage, setPostsPerPage ] = useState(10);
     const [ filterStatus, setFilterStatus ] = useState('');
-    const POSTS_PER_PAGE = 10;
+    const ITEMS_PER_PAGE = 10;
 
     // TODO: Fetch data from API
     const {
@@ -164,10 +160,16 @@ const PostManagement = () => {
 
     const filteredPosts = useMemo(() => {
         if (!posts) return [];
-        return sortPosts(filterPosts(posts, searchTerm, filterStatus), sortOrder);
+
+        return sortItems(
+            filterItems(posts, searchTerm, filterStatus, ['title', 'user.name']),
+            'createdAt',
+            sortOrder
+        );
+
     }, [posts, searchTerm, sortOrder, filterStatus]);
 
-    const paginatedPosts = useMemo(() => paginatePosts(filteredPosts, currentPage, 10), [filteredPosts, currentPage]);
+    const paginatedPosts = useMemo(() => paginateItems(filteredPosts, currentPage, 10), [filteredPosts, currentPage]);
 
 
     // Handle session errors
@@ -210,7 +212,7 @@ const PostManagement = () => {
                 <table className={styles.table}>
                     <thead className={styles.tableHead}>
                         <tr>
-                            <th>S/NO</th>
+                            <th>#</th>
                             <th>Title</th>
                             <th>Author</th>
                             <th>Status</th>
@@ -270,8 +272,8 @@ const PostManagement = () => {
                 {/* Pagination Controls */}
                 <TablePagination 
                     currentPage={currentPage}
-                    totalPosts={filterPosts.length}
-                    postsPerPage={10}
+                    totalItems={filterItems.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
                     onPageChange={handlePageChange}
                 />
             </div>

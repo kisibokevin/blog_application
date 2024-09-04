@@ -3,7 +3,7 @@ import React from 'react';
 import { RiArrowLeftSLine, RiArrowRightSLine } from "@remixicon/react";
 import styles from './tablePagination.module.css';
 
-const TablePagination = ({ currentPage, totalPosts, postsPerPage, onPageChange }) => {
+const TablePagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
     return (
         <div className={styles.pagination}>
             <RiArrowLeftSLine
@@ -21,7 +21,7 @@ const TablePagination = ({ currentPage, totalPosts, postsPerPage, onPageChange }
                 color='black'
                 className={`${styles.nextIcon} ${styles.pButton}`}
                 onClick={() => onPageChange('next')}
-                disabled={currentPage * postsPerPage >= totalPosts}
+                disabled={currentPage * itemsPerPage >= totalItems}
             />
         </div>
     );

@@ -9,6 +9,7 @@ const SortingAndFiltering = ({ sortOrder, filterStatus, onSortChange, onFilterCh
             Sort
         <div className={styles.sort}>
             <select value={sortOrder} onChange={onSortChange}>
+                <option value="" selected disabled hidden>Select</option>
                 <option value="">Default</option>
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
