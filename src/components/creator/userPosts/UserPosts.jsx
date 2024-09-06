@@ -5,26 +5,35 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import styles from "./userPosts.module.css"
 import { RiEyeLine, RiDeleteBin2Line } from '@remixicon/react'
+import { fetcher } from "@/utils/dataUtils"
+import { useSortableTable } from "@/utils/sortableTableColumns"
+import TableHeader from "@/components/tableHeader/TableHeader"
+import { useRouter } from "next/navigation"
 
-const fetcher = async (url) => {
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if(!res.ok){
-        const error = new Error(data.message);
-        throw error;
-    }
-
-    return data;
-};
-// the function below gets user posts and  displays them in a table
+// the code block below gets user posts and  displays them in a table
 
 const UserPosts = () => {
+    const router = useRouter();
     const { data: session, status: sessionStatus } = useSession();
     const { data: posts, error, mutate } = useSWR(
         session?.user?.id ? `/api/userposts?userId=${session.user.id}` : null, 
         fetcher
     );
+
+    const columns = [
+        { key: 'title', label: 'Title'},
+        { key: 'status', label: 'Status' },
+        { key: 'createdAt', label: 'Created At' },
+        // Add more columns as needed
+    ];
+
+    const viewPost = async (slug) => {
+        // redirect to post page
+        router.push(`/posts/${slug}`)
+
+    };
+
+    const { sortedData, sortConfig, handleSort } = useSortableTable(posts || [], 'createdAt', 'asc');
 
     if (sessionStatus === 'loading') return <div>Loading session...</div>;
     if (!session?.user) return <div>Please sign in to view your posts.</div>;
@@ -34,22 +43,18 @@ const UserPosts = () => {
             {error && <div>Error: {error.message}</div>}
             {!posts && <div>Loading posts...</div>}
             {posts && (
-                <table className={styles.postTable}>
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {posts.map((post) => (
+                <table className={styles.table}>
+                    <TableHeader columns={columns} sortConfig={sortConfig} onSort={handleSort}/>
+                    <tbody className={styles.tableBody}>
+                        {sortedData.map((post, index) => (
                             <tr key={post.id}>
+                                <td>{index + 1}</td>
                                 <td>{post.title}</td>
-                                <td>{post.status}</td>
-                                <td className={styles.actions}>
-                                    <Link href={`/edit-post/${post.id}`} className={styles.editButton}><RiEyeLine /></Link>
-                                    <button onClick={() => handleDelete(post.id)} className={styles.deleteButton} ><RiDeleteBin2Line /></button>
+                                <td className={`${styles[post.status]}`}>{post.status}</td>
+                                <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                <td className={styles.action}>
+                                    <RiEyeLine id="view-post" size={24} className={styles.viewButton} onClick={() => viewPost(post.slug)}/>
+                                    <RiDeleteBin2Line id="delete-post" className={styles.deleteButton} />
                                 </td>
                             </tr>
                         ))}

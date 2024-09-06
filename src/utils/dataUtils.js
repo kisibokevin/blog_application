@@ -45,6 +45,22 @@ export const sortItems = (items, sortKey, sortOrder = "asc") => {
     });
 };
 
+/* export const sortPosts = (items, sortColumn, sortOrder) => {
+    if (sortOrder) {
+        return items.sort((a, b) => {
+            const aValue = a[sortColumn];
+            const bValue = b[sortColumn];
+            if (sortOrder === "asc") {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+    }
+    return items;
+}; */
+
+
 export const paginateItems = (items, currentPage, itemsPerPage) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return items.slice(startIndex, startIndex + itemsPerPage);
