@@ -1,6 +1,30 @@
 .container {
     padding: 10px;
 }
+
+.searchContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.addButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.addButton:hover {
+    background-color: #238a3f;
+}
+
 .table {
     width: 100%;
     border-collapse: collapse;

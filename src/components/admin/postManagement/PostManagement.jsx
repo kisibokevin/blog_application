@@ -16,11 +16,11 @@ import Link from 'next/link'
 import ConfirmModal from '@/components/confirmModal/ConfirmModal'
 import { Tooltip } from 'react-tooltip';
 import Notification from '@/components/notification/Notification';
-//import { fetcher, filterPosts, sortPosts, paginatePosts } from '@/utils/postUtils';
-import { fetcher, filterItems, sortItems, paginateItems } from '@/utils/dataUtils';
+import { fetcher } from '@/utils/dataUtils';
 import TablePagination from '@/components/tablePagination/TablePagination';
 import SearchBar from '@/components/searchBar/SearchBar';
-import SortingAndFiltering from '@/components/sortingFiltering/SortingAndFiltering';
+import { useSortAndFilter } from '@/hooks/SortAndFilter';
+import TableHeader from '@/components/tableHeader/TableHeader';
 
 const PostManagement = () => {
     /*
@@ -29,17 +29,8 @@ const PostManagement = () => {
     * Add new post, view post, delete post, and pagination controls.
     */
 
-    const { status } = useSession();
+    const { data: session, status: sessionStatus } = useSession();
     const router = useRouter();
-
-    const [ isModalOpen, setIsModalOpen ] = useState(false);
-    const [ postToDelete, setPostToDelete ] = useState(null);
-    const [ notification, setNotification ] = useState({ message: '', type: '',});
-    const [ searchTerm, setSearchTerm ] = useState("");
-    const [ sortOrder, setSortOrder ] = useState('asc');
-    const [ currentPage, setCurrentPage ] = useState(1);
-    const [ filterStatus, setFilterStatus ] = useState('');
-    const ITEMS_PER_PAGE = 10;
 
     // TODO: Fetch data from API
     const {
@@ -49,11 +40,25 @@ const PostManagement = () => {
         isLoading,
     } = useSWR("http://localhost:3000/api/admin", fetcher);
 
-    //console.log(posts)
+    const columns = [
+        { key: "title", label: "Title" },
+        { key: "author", label: 'Author'},
+        { key: "status", label: "Status" },
+        { key: "createdAt", label: "Created At" },
+    ];
 
+    const searchableColumns = ['title', 'status'];
+
+    const [ isModalOpen, setIsModalOpen ] = useState(false);
+    const [ postToDelete, setPostToDelete ] = useState(null);
+    const [ notification, setNotification ] = useState({ message: '', type: '',});
+    const [ searchTerm, setSearchTerm ] = useState("");
+    const [ currentPage, setCurrentPage ] = useState(1);
+    const ITEMS_PER_PAGE = 10;
+
+    
+    const { sortedData, sortConfig, handleSort } = useSortAndFilter(posts || [], searchTerm, 'createdAt', 'asc', searchableColumns);
     const handleSearchChange = (e) => setSearchTerm(e.target.value.toLowerCase());
-    const handleSortChange = (e) => setSortOrder(e.target.value);
-    const handleFilterChange = (e) => setFilterStatus(e.target.value);
 
     // TODO: Implement publish post functionality
     const handlePublish = async (slug) => {
@@ -151,39 +156,33 @@ const PostManagement = () => {
     };
 
     const handlePageChange = (direction) => {
-        if (direction === 'prev') {
-            setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
-        } else {
-            setCurrentPage((prevPage) => prevPage + 1);
-        }
+        setCurrentPage((prevPage) => {
+            if (direction === 'prev') {
+                return Math.max(prevPage - 1, 1);
+            } else if (direction === 'next') {
+                const maxPage = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
+                return Math.min(prevPage + 1, maxPage);
+            }
+            return prevPage;
+        });
     };
 
-    const filteredPosts = useMemo(() => {
-        if (!posts) return [];
+    //const paginatedPosts = useMemo(() => paginateItems(sortedData, currentPage, 10), [sortedData, currentPage]);
+    const paginatedPosts = useMemo(() => {
 
-        return sortItems(
-            filterItems(posts, searchTerm, filterStatus, ['title', 'user.name']),
-            'createdAt',
-            sortOrder
-        );
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = currentPage + ITEMS_PER_PAGE;
+        return sortedData.slice(startIndex, endIndex);
 
-    }, [posts, searchTerm, sortOrder, filterStatus]);
-
-    const paginatedPosts = useMemo(() => paginateItems(filteredPosts, currentPage, 10), [filteredPosts, currentPage]);
-
+    },[sortedData, currentPage]);
 
     // Handle session errors
     if (error) {
         return <div>Error : {error.message}</div>
     }
 
-    if (status === 'loading') {
-        return <p>Loading...</p>
-    }
-
-    if (status !== 'authenticated') {
-        return <Link href='/login'>Login to Access Dashboard</Link>
-    }
+    if (sessionStatus === 'loading') return <div>Loading session...</div>;
+    if (!session?.user) return <div>Please sign in to view your posts.</div>;
 
 
     return (
@@ -202,32 +201,17 @@ const PostManagement = () => {
                 </div>
                 <div className={styles.searchContainer}>
                     <SearchBar searchTerm={searchTerm} onChange={handleSearchChange} />
-                    <SortingAndFiltering 
-                        sortOrder={sortOrder}
-                        filterStatus={filterStatus}
-                        onSortChange={handleSortChange}
-                        onFilterChange={handleFilterChange}
-                    />
                 </div>
                 <table className={styles.table}>
-                    <thead className={styles.tableHead}>
-                        <tr>
-                            <th>#</th>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Status</th>
-                            <th>Created At</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
+                    <TableHeader columns={columns} sortConfig={sortConfig} onSort={handleSort}/>
                     <tbody className={styles.tableBody}>
                         {isLoading ? (
                             <tr>
                                 <td colSpan={6} style={{ textAlign: 'center' }}>Loading...</td>
                             </tr>
                         ) : (
-                            paginatedPosts.length > 0 ? (
-                                paginatedPosts.map(( post, index ) => (
+                            sortedData.length > 0 ? (
+                                sortedData.map(( post, index ) => (
                                     <tr key={post.id}>
                                         <td>{index + 1 + (currentPage - 1) * 10}</td>
                                         <td>{post.title}</td>
@@ -272,7 +256,7 @@ const PostManagement = () => {
                 {/* Pagination Controls */}
                 <TablePagination 
                     currentPage={currentPage}
-                    totalItems={filterItems.length}
+                    totalItems={sortedData.length}
                     itemsPerPage={ITEMS_PER_PAGE}
                     onPageChange={handlePageChange}
                 />

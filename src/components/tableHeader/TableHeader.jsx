@@ -7,9 +7,9 @@ import { RiArrowUpDownLine, RiArrowDownSLine, RiArrowUpSLine } from "@remixicon/
 const TableHeader = ({ columns, sortConfig, onSort }) => {
     const getSortIcon = (key) => {
         if (sortConfig.key === key) {
-            return sortConfig.order === 'asc' ? <RiArrowUpSLine size={18}/> : <RiArrowDownSLine size={18} />;
+            return sortConfig.order === 'asc' ? <RiArrowUpSLine size={16}/> : <RiArrowDownSLine size={16} />;
         }
-        return <RiArrowUpDownLine />;
+        return <RiArrowUpDownLine size={16}/>;
     };
 
     return (
