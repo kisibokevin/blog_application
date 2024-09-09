@@ -53,11 +53,17 @@ const PostManagement = () => {
     const [ postToDelete, setPostToDelete ] = useState(null);
     const [ notification, setNotification ] = useState({ message: '', type: '',});
     const [ searchTerm, setSearchTerm ] = useState("");
-    const [ currentPage, setCurrentPage ] = useState(1);
-    const ITEMS_PER_PAGE = 10;
+    //const ITEMS_PER_PAGE = 10;
 
     
-    const { sortedData, sortConfig, handleSort } = useSortAndFilter(posts || [], searchTerm, 'createdAt', 'asc', searchableColumns);
+    const { sortedData, paginatedData, sortConfig, currentPage, setCurrentPage, itemsPerPage, handleSort } =
+        useSortAndFilter(
+            posts || [],
+            searchTerm,
+            "createdAt",
+            "asc",
+            searchableColumns
+        );
     const handleSearchChange = (e) => setSearchTerm(e.target.value.toLowerCase());
 
     // TODO: Implement publish post functionality
@@ -160,7 +166,7 @@ const PostManagement = () => {
             if (direction === 'prev') {
                 return Math.max(prevPage - 1, 1);
             } else if (direction === 'next') {
-                const maxPage = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
+                const maxPage = Math.ceil(sortedData.length / itemsPerPage);
                 return Math.min(prevPage + 1, maxPage);
             }
             return prevPage;
@@ -168,13 +174,7 @@ const PostManagement = () => {
     };
 
     //const paginatedPosts = useMemo(() => paginateItems(sortedData, currentPage, 10), [sortedData, currentPage]);
-    const paginatedPosts = useMemo(() => {
-
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = currentPage + ITEMS_PER_PAGE;
-        return sortedData.slice(startIndex, endIndex);
-
-    },[sortedData, currentPage]);
+    
 
     // Handle session errors
     if (error) {
@@ -210,8 +210,8 @@ const PostManagement = () => {
                                 <td colSpan={6} style={{ textAlign: 'center' }}>Loading...</td>
                             </tr>
                         ) : (
-                            sortedData.length > 0 ? (
-                                sortedData.map(( post, index ) => (
+                            paginatedData.length > 0 ? (
+                                paginatedData.map(( post, index ) => (
                                     <tr key={post.id}>
                                         <td>{index + 1 + (currentPage - 1) * 10}</td>
                                         <td>{post.title}</td>
@@ -257,7 +257,7 @@ const PostManagement = () => {
                 <TablePagination 
                     currentPage={currentPage}
                     totalItems={sortedData.length}
-                    itemsPerPage={ITEMS_PER_PAGE}
+                    itemsPerPage={itemsPerPage}
                     onPageChange={handlePageChange}
                 />
             </div>

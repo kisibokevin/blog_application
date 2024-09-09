@@ -6,7 +6,6 @@ import Link from "next/link"
 import styles from "./userPosts.module.css"
 import { RiEyeLine, RiDeleteBin2Line } from '@remixicon/react'
 import { fetcher } from "@/utils/dataUtils"
-//import { useSortableTable } from "@/utils/sortableTableColumns"
 import { useSortAndFilter } from "@/hooks/SortAndFilter"
 import TableHeader from "@/components/tableHeader/TableHeader"
 import { useRouter } from "next/navigation"

@@ -10,80 +10,58 @@ import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 
 import { fetcher, filterItems, sortItems, paginateItems } from '@/utils/dataUtils';
+import TableHeader from '@/components/tableHeader/TableHeader';
+import { useSortAndFilter } from '@/hooks/SortAndFilter';
 
 const UserManagement = () => {
 
-	const { status } = useSession();
-
-	const [ searchTerm, setSearchTerm ] = useState("");
-    const [ sortOrder, setSortOrder ] = useState('asc');
-    const [ currentPage, setCurrentPage ] = useState(1);
-    const [ filterStatus, setFilterStatus ] = useState('');
-    const ITEMS_PER_PAGE = 10;
-
-	// fetching users from api
+	const { data: session, status: sessionStatus } = useSession();
 	const { data: users, error, mutate, isLoading } = useSWR('http://localhost:3000/api/users', fetcher);
 
+	const columns = [
+		{ key: 'name', label: 'Name' },
+		{ key: 'email', label: 'Email'},
+		{ key: 'role', label: 'Role' },
+        // Add more columns as needed
+	]
 
+	const [ searchTerm, setSearchTerm ] = useState("");
+    const [ currentPage, setCurrentPage ] = useState(1);
+	const searchableColumns = [ 'title', 'email', 'role', 'name']
+    const ITEMS_PER_PAGE = 10;
+
+	const { sortedData, sortConfig, handleSort } = useSortAndFilter(users || [], searchTerm, 'created_at', 'asc', searchableColumns);
 	const handleSearchChange = (e) => setSearchTerm(e.target.value.toLowerCase());
-    const handleSortChange = (e) => setSortOrder(e.target.value);
-    const handleFilterChange = (e) => setFilterStatus(e.target.value);
 
 	const handlePageChange = (direction) => {
-        if (direction === 'prev') {
-            setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
-        } else {
-            setCurrentPage((prevPage) => prevPage + 1);
-        }
+        setCurrentPage((prevPage) => {
+            if (direction === 'prev') {
+                return Math.max(prevPage - 1, 1);
+            } else if (direction === 'next') {
+                const maxPage = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
+                return Math.min(prevPage + 1, maxPage);
+            }
+            return prevPage;
+        });
     };
 
-	const filteredUsers = useMemo(() => {
-		if (!users) return  [];
-		
-		return sortItems(
-			filterItems( 
-				users, 
-				searchTerm, 
-				filterStatus, 
-				['name','email', 'role']), 
-				'created_at', 
-				sortOrder
-			);
-	}, [users, searchTerm, sortOrder, filterStatus]);
+	const paginatedUsers = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
 
-	const paginatedUsers = useMemo(
-		() => paginateItems(
-			filteredUsers, 
-			currentPage, 
-			ITEMS_PER_PAGE), 
-			[filteredUsers, currentPage, ITEMS_PER_PAGE]
-		);
+        return sortedData.slice(startIndex, endIndex);
 
-    // Handle session errors
-    if (error) {
-        return <div>Error : {error.message}</div>
-    }
-
-    if (status === 'loading') {
-        return <p>Loading...</p>
-    }
-
-    if (status!== 'authenticated') {
-        return <Link href='/login'>Login to Access Dashboard</Link>
-    }
+    },[sortedData, currentPage]);
+	
 
 	// Handle session errors
     if (error) {
         return <div>Error : {error.message}</div>
     }
 
-    if (status === 'loading') {
-        return <p>Loading...</p>
-    }
-
-    if (status !== 'authenticated') {
-        return <Link href='/login'>Login to Access Dashboard</Link>
-    }
+    if (sessionStatus === "loading") return <div>Loading session...</div>;
+    if (!session?.user) return <div>Please sign in to view your posts.</div>;
+    
 
 	return (
 		<div className={styles.container}>
@@ -94,23 +72,9 @@ const UserManagement = () => {
 				</div>
 				<div className={styles.searchContainer}>
 					<SearchBar searchTerm={searchTerm} onChange={handleSearchChange}/>
-					<SortingAndFiltering 
-						sortOrder={sortOrder}
-						filterStatus={filterStatus}
-						onSortChange={handleSortChange}
-						onFilterChange={handleFilterChange}
-					/>
 				</div>
                 <table className={styles.table}>
-                    <thead className={styles.tableHead}>
-                        <tr>
-							<th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+                    <TableHeader columns={columns} sortConfig={sortConfig} onSort={handleSort}/>
                     <tbody className={styles.tableBody}>
                         { isLoading ? (
 							<tr>
@@ -140,7 +104,7 @@ const UserManagement = () => {
                 </table>
 				<TablePagination 
 					currentPage={currentPage}
-					totalItems={filterItems.length}
+					totalItems={sortedData.length}
 					itemsPerPage={ITEMS_PER_PAGE}
 					onPageChange={handlePageChange}
 				/>

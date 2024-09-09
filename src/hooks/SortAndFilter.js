@@ -1,9 +1,8 @@
 'use client'
-// hooks/useSortableTable.js
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
-export const useSortAndFilter = (data, searchTerm = '', initialSortKey = '', initialSortOrder = 'asc', searchableColumns = []) => {
+export const useSortAndFilter = (data, searchTerm = '', initialSortKey = '', initialSortOrder = 'asc', searchableColumns = [], itemsPerPage = 10) => {
     const [sortConfig, setSortConfig] = useState({ key: initialSortKey, order: initialSortOrder });
 
     // Search filtering logic
@@ -34,13 +33,29 @@ export const useSortAndFilter = (data, searchTerm = '', initialSortKey = '', ini
         });
     }, [filteredData, sortConfig]);
 
-    const handleSort = (key) => {
-        let order = 'asc';
-        if (sortConfig.key === key && sortConfig.order === 'asc') {
-            order = 'desc';
-        }
-        setSortConfig({ key, order });
-    };
+    const handleSort = useCallback((key) => {
+        setSortConfig({
+            key,
+            order: sortConfig.order === "asc" ? "desc" : "asc",
+        });
+    }, [ sortConfig.order ]);
 
-    return { sortedData, sortConfig, handleSort };
+    // pagination logic
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const paginatedData = useMemo( () => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return sortedData.slice(startIndex, endIndex);
+    }, [ sortedData, currentPage, itemsPerPage ])
+
+    return {
+        sortedData,
+        sortConfig,
+        handleSort,
+        paginatedData,
+        currentPage,
+        setCurrentPage,
+        itemsPerPage,
+    };
 };
