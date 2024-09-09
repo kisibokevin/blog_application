@@ -1,9 +1,8 @@
-'use client'
-
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 
 export const useSortAndFilter = (data, searchTerm = '', initialSortKey = '', initialSortOrder = 'asc', searchableColumns = [], itemsPerPage = 10) => {
     const [sortConfig, setSortConfig] = useState({ key: initialSortKey, order: initialSortOrder });
+    const [currentPage, setCurrentPage] = useState(1);
 
     // Search filtering logic
     const filteredData = useMemo(() => {
@@ -18,8 +17,8 @@ export const useSortAndFilter = (data, searchTerm = '', initialSortKey = '', ini
     }, [data, searchTerm, searchableColumns]);
 
     // Sorting logic
-    const sortedData = useMemo(() => {
-        return filteredData.sort((a, b) => {
+    const processedData = useMemo(() => {
+        return [...filteredData].sort((a, b) => {  // Copy array to avoid mutation
             if (!sortConfig.key) return 0;
 
             const aValue = sortConfig.key.split('.').reduce((obj, key) => obj?.[key], a);
@@ -33,27 +32,31 @@ export const useSortAndFilter = (data, searchTerm = '', initialSortKey = '', ini
         });
     }, [filteredData, sortConfig]);
 
+    // Sort handler
     const handleSort = useCallback((key) => {
-        setSortConfig({
+        setSortConfig((prevConfig) => ({
             key,
-            order: sortConfig.order === "asc" ? "desc" : "asc",
-        });
-    }, [ sortConfig.order ]);
+            order: prevConfig.order === 'asc' ? 'desc' : 'asc',
+        }));
+    }, []);
 
-    // pagination logic
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const paginatedData = useMemo( () => {
+    // Pagination logic
+    const paginatedData = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        return sortedData.slice(startIndex, endIndex);
-    }, [ sortedData, currentPage, itemsPerPage ])
+        return processedData.slice(startIndex, endIndex);
+    }, [processedData, currentPage, itemsPerPage]);
+
+    // Reset page on search term change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     return {
-        sortedData,
+        fullProcessedData: processedData,
+        paginatedData,
         sortConfig,
         handleSort,
-        paginatedData,
         currentPage,
         setCurrentPage,
         itemsPerPage,

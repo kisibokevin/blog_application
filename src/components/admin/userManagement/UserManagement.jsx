@@ -1,15 +1,14 @@
 'use client'
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import styles from './userManagement.module.css'
 import Link from 'next/link';
 import { RiEditLine, RiDeleteBinLine, RiAddLine } from "@remixicon/react";
 import SearchBar from '@/components/searchBar/SearchBar';
-import SortingAndFiltering from '@/components/sortingFiltering/SortingAndFiltering';
 import TablePagination from '@/components/tablePagination/TablePagination';
 import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 
-import { fetcher, filterItems, sortItems, paginateItems } from '@/utils/dataUtils';
+import { fetcher } from '@/utils/dataUtils';
 import TableHeader from '@/components/tableHeader/TableHeader';
 import { useSortAndFilter } from '@/hooks/SortAndFilter';
 
@@ -26,11 +25,11 @@ const UserManagement = () => {
 	]
 
 	const [ searchTerm, setSearchTerm ] = useState("");
-    const [ currentPage, setCurrentPage ] = useState(1);
 	const searchableColumns = [ 'title', 'email', 'role', 'name']
-    const ITEMS_PER_PAGE = 10;
+    
 
-	const { sortedData, sortConfig, handleSort } = useSortAndFilter(users || [], searchTerm, 'created_at', 'asc', searchableColumns);
+	const { fullProcessedData, paginatedData, sortConfig, currentPage, setCurrentPage, itemsPerPage, handleSort  } = useSortAndFilter(users || [], searchTerm, 'created_at', 'asc', searchableColumns);
+	
 	const handleSearchChange = (e) => setSearchTerm(e.target.value.toLowerCase());
 
 	const handlePageChange = (direction) => {
@@ -38,20 +37,12 @@ const UserManagement = () => {
             if (direction === 'prev') {
                 return Math.max(prevPage - 1, 1);
             } else if (direction === 'next') {
-                const maxPage = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
+                const maxPage = Math.ceil(fullProcessedData.length / itemsPerPage);
                 return Math.min(prevPage + 1, maxPage);
             }
             return prevPage;
         });
     };
-
-	const paginatedUsers = useMemo(() => {
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-
-        return sortedData.slice(startIndex, endIndex);
-
-    },[sortedData, currentPage]);
 	
 
 	// Handle session errors
@@ -81,10 +72,10 @@ const UserManagement = () => {
                                 <td colSpan="5">Loading Data...</td>
                             </tr>
 						) : (
-								paginatedUsers.length > 0 ?(
-									paginatedUsers.map((user, index) => (
+								paginatedData.length > 0 ?(
+									paginatedData.map((user, index) => (
 									<tr key={user._id}>
-										<td>{index + 1 + (currentPage - 1) * ITEMS_PER_PAGE}</td>
+										<td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
 										<td>{user.name}</td>
 										<td>{user.email}</td>
 										<td>{user.role}</td>
@@ -104,8 +95,8 @@ const UserManagement = () => {
                 </table>
 				<TablePagination 
 					currentPage={currentPage}
-					totalItems={sortedData.length}
-					itemsPerPage={ITEMS_PER_PAGE}
+					totalItems={fullProcessedData.length}
+					itemsPerPage={itemsPerPage}
 					onPageChange={handlePageChange}
 				/>
 			</div>

@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import SearchBar from "@/components/searchBar/SearchBar"
 import { RiAddLine } from "@remixicon/react"
+import TablePagination from "@/components/tablePagination/TablePagination"
 
 // the code block below gets user posts and  displays them in a table
 
@@ -39,9 +40,35 @@ const UserPosts = () => {
 
     };
 
-    const { sortedData, sortConfig, handleSort } = useSortAndFilter(posts || [], searchTerm, 'createdAt', 'asc', searchableColumns);
+    const {
+        fullProcessedData,
+        paginatedData,
+        sortConfig,
+        currentPage,
+        setCurrentPage,
+        itemsPerPage,
+        handleSort,
+    } = useSortAndFilter(
+        posts || [],
+        searchTerm,
+        "createdAt",
+        "asc",
+        searchableColumns
+    );
 
     const handleSearchChange = (e) => setSearchTerm(e.target.value.toLowerCase());
+
+    const handlePageChange = (direction) => {
+        setCurrentPage((prevPage) => {
+            if (direction === 'prev') {
+                return Math.max(prevPage - 1, 1);
+            } else if (direction === 'next') {
+                const maxPage = Math.ceil(fullProcessedData.length / itemsPerPage);
+                return Math.min(prevPage + 1, maxPage);
+            }
+            return prevPage;
+        });
+    };
 
     if (sessionStatus === 'loading') return <div>Loading session...</div>;
     if (!session?.user) return <div>Please sign in to view your posts.</div>;
@@ -54,12 +81,12 @@ const UserPosts = () => {
             </div>
             <div className={styles.tableContainer}>
                 {error && <div>Error: {error.message}</div>}
-                {!posts && <div>Loading posts...</div>}
-                {posts && (
+                {!fullProcessedData && <div>Loading posts...</div>}
+                {paginatedData && (
                     <table className={styles.table}>
                         <TableHeader columns={columns} sortConfig={sortConfig} onSort={handleSort}/>
                         <tbody className={styles.tableBody}>
-                            {sortedData.map((post, index) => (
+                            {paginatedData.map((post, index) => (
                                 <tr key={post.id}>
                                     <td>{index + 1}</td>
                                     <td>{post.title}</td>
@@ -74,6 +101,13 @@ const UserPosts = () => {
                         </tbody>
                     </table>
                 )}
+                {/* Pagination Controls */}
+                <TablePagination 
+                    currentPage={currentPage}
+                    totalItems={fullProcessedData.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={handlePageChange}
+                />
             </div>
             
         </div>

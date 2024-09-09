@@ -56,7 +56,7 @@ const PostManagement = () => {
     //const ITEMS_PER_PAGE = 10;
 
     
-    const { sortedData, paginatedData, sortConfig, currentPage, setCurrentPage, itemsPerPage, handleSort } =
+    const { fullProcessedData, paginatedData, sortConfig, currentPage, setCurrentPage, itemsPerPage, handleSort } =
         useSortAndFilter(
             posts || [],
             searchTerm,
@@ -64,6 +64,7 @@ const PostManagement = () => {
             "asc",
             searchableColumns
         );
+        
     const handleSearchChange = (e) => setSearchTerm(e.target.value.toLowerCase());
 
     // TODO: Implement publish post functionality
@@ -166,15 +167,12 @@ const PostManagement = () => {
             if (direction === 'prev') {
                 return Math.max(prevPage - 1, 1);
             } else if (direction === 'next') {
-                const maxPage = Math.ceil(sortedData.length / itemsPerPage);
+                const maxPage = Math.ceil(fullProcessedData.length / itemsPerPage);
                 return Math.min(prevPage + 1, maxPage);
             }
             return prevPage;
         });
-    };
-
-    //const paginatedPosts = useMemo(() => paginateItems(sortedData, currentPage, 10), [sortedData, currentPage]);
-    
+    };    
 
     // Handle session errors
     if (error) {
@@ -219,7 +217,7 @@ const PostManagement = () => {
                                         <td className={`${styles[post.status]}`}>{post.status}</td>
                                         <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                                         <td className={styles.action}>
-                                            <RiEyeLine id="view-post" size={24} className={styles.viewButton} onClick={() => viewPost(post.slug)}/>
+                                            <RiEyeLine id='view-post' size={24} className={styles.viewButton} onClick={() => viewPost(post.slug)}/>
                                             {post.status === 'pending' ? (
                                                 <RiUploadLine id="publish-post" size={24} className={styles.publishButton} onClick={() => handlePublish(post.slug)}/>
                                                 
@@ -256,7 +254,7 @@ const PostManagement = () => {
                 {/* Pagination Controls */}
                 <TablePagination 
                     currentPage={currentPage}
-                    totalItems={sortedData.length}
+                    totalItems={fullProcessedData.length}
                     itemsPerPage={itemsPerPage}
                     onPageChange={handlePageChange}
                 />
