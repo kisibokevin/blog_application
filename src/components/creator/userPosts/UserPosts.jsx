@@ -13,7 +13,8 @@ import { useState } from "react"
 import SearchBar from "@/components/searchBar/SearchBar"
 import { RiAddLine } from "@remixicon/react"
 import TablePagination from "@/components/tablePagination/TablePagination"
-
+import { Tooltip } from "react-tooltip"
+import Notification from "@/components/notification/Notification"
 // the code block below gets user posts and  displays them in a table
 
 const UserPosts = () => {
@@ -95,6 +96,12 @@ const UserPosts = () => {
                                     <td className={styles.action}>
                                         <RiEyeLine id="view-post" size={24} className={styles.viewButton} onClick={() => viewPost(post.slug)}/>
                                         <RiDeleteBin2Line id="delete-post" className={styles.deleteButton} />
+                                        <Tooltip anchorSelect='#view-post' content='View Post' style={{ backgroundColor: "#4caf50", color: "#ffffff", }}/>
+                                        <Tooltip 
+                                            anchorSelect='#delete-post' 
+                                            content='Delete Post'
+                                            style={{ backgroundColor: "#F44336", color: "#ffffff", }}
+                                        />
                                     </td>
                                 </tr>
                             ))}

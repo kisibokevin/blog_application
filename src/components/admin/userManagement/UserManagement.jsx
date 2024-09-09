@@ -11,6 +11,7 @@ import useSWR from 'swr';
 import { fetcher } from '@/utils/dataUtils';
 import TableHeader from '@/components/tableHeader/TableHeader';
 import { useSortAndFilter } from '@/hooks/SortAndFilter';
+import { Tooltip } from 'react-tooltip';
 
 const UserManagement = () => {
 
@@ -80,8 +81,18 @@ const UserManagement = () => {
 										<td>{user.email}</td>
 										<td>{user.role}</td>
 										<td className={styles.action}>
-											<RiEditLine size={24} className={styles.editButton}/>
-											<RiDeleteBinLine size={24} className={styles.deleteButton}/>
+											<RiEditLine id='edit-user' size={24} className={styles.editButton}/>
+											<RiDeleteBinLine id='delete-user' size={24} className={styles.deleteButton}/>
+											<Tooltip 
+                                                anchorSelect='#edit-user'  
+                                                content='Edit Role'
+                                                style={{ backgroundColor: "#2196f3", color: "#ffffff", }}
+                                            />
+                                            <Tooltip 
+                                                anchorSelect='#delete-user' 
+                                                content='Remove User'
+                                                style={{ backgroundColor: "#F44336", color: "#ffffff", }}
+                                            />
 										</td>
 									</tr>
 									))

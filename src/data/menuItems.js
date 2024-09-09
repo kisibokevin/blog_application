@@ -2,7 +2,6 @@ import {
     RiBookletLine,
     RiDashboardLine,
     RiEditLine,
-    RiFileListLine,
     RiFileList2Line,
     RiFlag2Line,
     RiDeleteBinLine,
@@ -34,22 +33,22 @@ const menuItems = {
         {
             icon: <RiFileList2Line />,
             label: 'Scheduled Posts',
-            href: '/dashboard/creator/scheduled-posts',
+            href: '/dashboard/creator/scheduledposts',
         },
         {
             icon: <RiImageLine />,
             label: 'Media Library',
-            href: '/dashboard/creator/media-library',
+            href: '/dashboard/creator/medialibrary',
         },
         {
             icon: <RiUserLine />,
             label: 'Edit Profile',
-            href: '/dashboard/creator/edit-profile',
+            href: '/dashboard/creator/editprofile',
         },
         {
             icon: <RiSettingsLine />,
             label: 'Settings',
-            href: '/dashboard/creator/settings',
+            href: '/dashboard/creator/mysettings',
         },
     ],
 
